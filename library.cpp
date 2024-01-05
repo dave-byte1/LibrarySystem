@@ -7,6 +7,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <vector>
 
 class Person {
    private:
@@ -93,6 +94,30 @@ class Book {
     }
 };
 
+class Member : public Person {
+   private:
+    int memberID;
+    std::vector<Book> booksLoaned;  // Collection of books loaned by the member
+
+   public:
+    Member(int memberID, const std::string& name, const std::string& address, const std::string& email)
+        : Person(name, address, email), memberID(memberID) {}
+
+    // Getter method to retrieve member ID
+    int getMemberID() const {
+        return memberID;
+    }
+    // Getter method to retrieve the books borrowed by the member
+    std::vector<Book>& getBooksBorrowed() {
+        return booksLoaned;
+    }
+
+    // Method to add a borrowed book to the member's collection of books
+    void setBooksBorrowed(const Book& book) {
+        booksLoaned.push_back(book);
+    }
+};
+
 int main() {
     // Testing the Person class
     Person person("Dan Man", "376 Fake St", "random@gmail.com");
@@ -105,5 +130,9 @@ int main() {
 
     book.borrowBook(nullptr);
     std::cout << "Due Date: " << book.getDueDateAsString() << std::endl;
+
+    // Testing the Member class
+    Member member(1, "Ben", "123 Fake St", "bens@gmail.com");
+    std::cout << "Member details: " << member.getName() << ", " << member.getAddress() << ", " << member.getMemberID() << std::endl;
     return 0;
 }
