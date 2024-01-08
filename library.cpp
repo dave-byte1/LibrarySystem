@@ -2,12 +2,14 @@
     library.cpp
     Author: M00865822
     Created: 01/01/2024
-    Updated: 06/01/2024
+    Updated: 08/01/2024
 */
 
 #include <algorithm>
 #include <ctime>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 class Book;
@@ -86,14 +88,9 @@ class Book {
         borrower = nullptr;
     }
 
-    void borrowBook(Person* person, int daysToAdd = 3) {
+    void borrowBook(Person* person, std::time_t newDueDate) {
         borrower = person;
-
-        // Get the current time
-        std::time_t now = std::time(nullptr);
-
-        // Set due date 3 days from now (24 hours * 60 minutes * 60 seconds)
-        dueDate = now + daysToAdd * 24 * 60 * 60;
+        dueDate = newDueDate;
     }
 };
 
@@ -253,37 +250,71 @@ class Librarian : public Person {
     }
 };
 
+/*
+    @brief Read books from a CSV file and return vector of Book objects
+
+    This function reads books from the CSV file and creates Book objects based on the file's content.
+    The function reads the columns for Book ID, Book name, Author First Name, and Author Last Name.
+
+    @param filename The name of the CSV file to be read.
+    @return A vector of book objects representing the books read from the CSV file.
+*/
+std::vector<Book> readBooksFromCSV(const std::string& filename) {
+    std::vector<Book> books;  // Vector to store Book objects
+    std::ifstream file(filename);
+
+    // Check if file is open
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return books;
+    }
+
+    std::string line;
+    std::getline(file, line);  // Read and ignore header line
+
+    // While loop to iterate through each line in the file
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string token;
+        std::vector<std::string> tokens;
+
+        // Tokenizing each line with ','
+        while (std::getline(ss, token, ',')) {
+            tokens.push_back(token);
+        }
+
+        // If there are enough tokens to create a Book object
+        if (tokens.size() >= 4) {
+            int bookID = std::stoi(tokens[0]);        // 1st token is bookID
+            std::string bookName = tokens[1];         // 2nd token is bookName
+            std::string authorFirstName = tokens[3];  // 4th token is authorFirstName
+            std::string authorLastName = tokens[4];   // 5th token is authorLastName
+
+            // Create Book object and add it to the vector
+            books.emplace_back(bookID, bookName, authorFirstName, authorLastName);
+        }
+    }
+
+    file.close();
+    return books;  // Return the vector of books
+}
+
 int main() {
-    // Testing the Person class
-    // Person person("Dan Man", "376 Fake St", "random@gmail.com");
-    // std::cout << "Person details: " << person.getName() << ", " << person.getAddress() << ", " << person.getEmail() << "\n"
-    //<< std::endl;
-
-    // Testing the Book class
-    // Book book(1, "Harry Potter", "J.K.", "Rowling");
-    // std::cout << "Book details: " << book.getBookName() << ", " << book.getAuthorFirstName() << " " << book.getAuthorLastName() << std::endl;
-
-    // book.borrowBook(nullptr);
-    // std::cout << "Due Date: " << book.getDueDateAsString() << std::endl;
-
-    // Testing the Member class
-    // Member member(1, "Ben", "123 Fake St", "bens@gmail.com");
-    // std::cout << "Member details: " << member.getName() << ", " << member.getAddress() << ", " << member.getMemberID() << std::endl;
-
-    // Testing the Librarian class
-
     Librarian librarian(1, "Chloe", "123 Fake St", "chloeLib@gmail.com", 50000);
 
     Member member(1, "Jack", "674 ABC Road", "jack@email.com");
 
+    std::cout << member.getName() << std::endl;
+
     librarian.addMember(member);
 
     // vector of books for testing
-    std::vector<Book> books = {
-        Book(1, "The Catcher in the Rye", "J.D.", "Salinger"),
-        Book(2, "To Kill a Mockingbird", "Harper", "Lee"),
-        Book(3, "1984", "George", "Orwell"),
-    };
+    std::vector<Book> books = readBooksFromCSV("library_books.csv");
+
+    if (books.empty()) {
+        std::cerr << "No books found in the CSV file." << std::endl;
+        return 1;
+    }
 
     librarian.issueBook(member, books, 1);
     librarian.issueBook(member, books, 2);
