@@ -2,7 +2,7 @@
     library.cpp
     Author: M00865822
     Created: 01/01/2024
-    Updated: 08/01/2024
+    Updated: 11/01/2024
 */
 
 #include <algorithm>
@@ -23,27 +23,27 @@ class Person {
    public:
     Person() = default;
     // Constructor for the Person class
-    Person(const std::string& name, const std::string& address, const std::string& email)
+    Person(const std::string &name, const std::string &address, const std::string &email)
         : name(name), address(address), email(email) {}
 
     std::string getName() const {
         return name;
     }
-    void setName(const std::string& newName) {
+    void setName(const std::string &newName) {
         name = newName;
     }
 
     std::string getAddress() const {
         return address;
     }
-    void setAddress(const std::string& newAddress) {
+    void setAddress(const std::string &newAddress) {
         address = newAddress;
     }
 
     std::string getEmail() const {
         return email;
     }
-    void setEmail(const std::string& newEmail) {
+    void setEmail(const std::string &newEmail) {
         email = newEmail;
     }
 };
@@ -56,11 +56,11 @@ class Book {
     std::string authorLastName;
     std::string bookType;
     std::time_t dueDate;
-    Person* borrower;
+    Person *borrower;
 
    public:
     // Constructor for the Book class
-    Book(int bookID, const std::string& bookName, const std::string& authorFirstName, const std::string& authorLastName)
+    Book(int bookID, const std::string &bookName, const std::string &authorFirstName, const std::string &authorLastName)
         : bookID(bookID), bookName(bookName), authorFirstName(authorFirstName), authorLastName(authorLastName), borrower(nullptr) {}
 
     int getBookID() const {
@@ -86,9 +86,15 @@ class Book {
     }
     void returnBook() {
         borrower = nullptr;
+        dueDate = 0;  // Reset the due date when book returned
     }
 
-    void borrowBook(Person* person, std::time_t newDueDate) {
+    void borrowBook(Person *person, std::time_t newDueDate) {
+        if (borrower != nullptr) {
+            std::cerr << "Book '" << bookName << "' is not available for borrowing." << std::endl;
+            return;
+        }
+
         borrower = person;
         dueDate = newDueDate;
     }
@@ -100,7 +106,7 @@ class Member : public Person {
     std::vector<Book> booksLoaned;  // Collection of books loaned by the member
 
    public:
-    Member(int memberID, const std::string& name, const std::string& address, const std::string& email)
+    Member(int memberID, const std::string &name, const std::string &address, const std::string &email)
         : Person(name, address, email), memberID(memberID) {}
 
     // Getter function to retrieve member ID
@@ -108,12 +114,12 @@ class Member : public Person {
         return memberID;
     }
     // Getter function to retrieve the books borrowed by the member
-    std::vector<Book>& getBooksBorrowed() {
+    std::vector<Book> &getBooksBorrowed() {
         return booksLoaned;
     }
 
     // Function to add a borrowed book to the member's collection of books
-    void setBooksBorrowed(const Book& book) {
+    void setBooksBorrowed(const Book &book) {
         booksLoaned.push_back(book);
     }
 };
@@ -124,7 +130,7 @@ class Librarian : public Person {
     int salary;
 
    public:
-    Librarian(int staffID, const std::string& name, const std::string& address, const std::string& email, int salary)
+    Librarian(int staffID, const std::string &name, const std::string &address, const std::string &email, int salary)
         : Person(name, address, email), staffID(staffID), salary(salary) {}
 
     int getStaffID() const {
@@ -142,30 +148,30 @@ class Librarian : public Person {
     }
 
     // Function which lets the librarian add a member to the library
-    void addMember(Member& member) {
+    void addMember(Member &member) {
         std::cout << "Librarian " << getName() << " added member " << member.getName() << std::endl;
     }
 
     /*
         @brief Issue a book to a member.
 
-        This function allows the librarian to issue a book to a member. First it checks that
-        the librarian has entered a valid book index, then it sets the due date of the book,
-        then it updates the member's collection of books, and finally it prints a message indicating
-        that the function succeeded.
+        This function allows the librarian to issue a book to a member if it's not being borrowed. First it checks that
+        the librarian has entered a valid book index, then it checks if the book is available for borrowing,
+        then sets the due date of the book, after that it updates the member's collection of books, and finally it
+        prints a message indicating that the function succeeded.
 
         @param member The member who the book is issued to.
         @param books The vector of all the available books.
         @param bookIndex What index of book should be issued.
     */
-    void issueBook(Member& member, std::vector<Book>& books, int bookIndex) {
+    void issueBook(Member &member, std::vector<Book> &books, int bookIndex) {
         bookIndex = bookIndex - 1;
         if (bookIndex < 0 || bookIndex >= books.size()) {
             std::cerr << "Invalid book index." << std::endl;
             return;
         }
 
-        Book& book = books[bookIndex];
+        Book &book = books[bookIndex];
 
         book.borrowBook(&member, std::time(nullptr) + 3 * 24 * 60 * 60);  // Due date set 3 days from now
 
@@ -184,13 +190,11 @@ class Librarian : public Person {
         @param member The member returning a book.
         @param bookId The ID of the book to be returned.
     */
-    void returnBook(Member& member, int bookId) {
-        auto& booksLoaned = member.getBooksBorrowed();
+    void returnBook(Member &member, int bookId) {
+        auto &booksLoaned = member.getBooksBorrowed();
 
         // Find the book with the specified ID in the member's collection of books
-        auto it = std::find_if(booksLoaned.begin(), booksLoaned.end(), [bookId](const Book& book) {
-            return book.getBookID() == bookId;
-        });
+        auto it = std::find_if(booksLoaned.begin(), booksLoaned.end(), [bookId](const Book &book) { return book.getBookID() == bookId; });
 
         if (it != booksLoaned.end()) {
             // Return the book and remove it from the member's list
@@ -209,12 +213,12 @@ class Librarian : public Person {
 
         @param member The member whose borrowed books are to be displayed.
     */
-    void displayBorrowedBooks(Member& member) {
-        const auto& borrowedBooks = member.getBooksBorrowed();
+    void displayBorrowedBooks(Member &member) {
+        const auto &borrowedBooks = member.getBooksBorrowed();
         std::cout << "Books borrowed by member " << member.getName() << ":" << std::endl;
 
         // Iterate through the borrowed books and display their names and IDs
-        for (const auto& book : borrowedBooks) {
+        for (const auto &book : borrowedBooks) {
             std::cout << " Book Name - " << book.getBookName() << std::endl;
             std::cout << " Book ID - " << book.getBookID() << '\n'
                       << std::endl;
@@ -229,12 +233,12 @@ class Librarian : public Person {
 
         @param member The member for whom the fines are calculated.
     */
-    void calculateFine(Member& member) {
+    void calculateFine(Member &member) {
         // Retrive the vector of borrowed books from the member
-        const auto& borrowedBooks = member.getBooksBorrowed();
+        const auto &borrowedBooks = member.getBooksBorrowed();
 
         // Iterate through the vector of borrowed books
-        for (const auto& book : borrowedBooks) {
+        for (const auto &book : borrowedBooks) {
             std::time_t now = std::time(nullptr);
             // Check if the book is overdue
             if (book.getDueDate() < now) {
@@ -259,7 +263,7 @@ class Librarian : public Person {
     @param filename The name of the CSV file to be read.
     @return A vector of book objects representing the books read from the CSV file.
 */
-std::vector<Book> readBooksFromCSV(const std::string& filename) {
+std::vector<Book> readBooksFromCSV(const std::string &filename) {
     std::vector<Book> books;  // Vector to store Book objects
     std::ifstream file(filename);
 
@@ -297,35 +301,4 @@ std::vector<Book> readBooksFromCSV(const std::string& filename) {
 
     file.close();
     return books;  // Return the vector of books
-}
-
-int main() {
-    Librarian librarian(1, "Chloe", "123 Fake St", "chloeLib@gmail.com", 50000);
-
-    Member member(1, "Jack", "674 ABC Road", "jack@email.com");
-
-    std::cout << member.getName() << std::endl;
-
-    librarian.addMember(member);
-
-    // vector of books for testing
-    std::vector<Book> books = readBooksFromCSV("library_books.csv");
-
-    if (books.empty()) {
-        std::cerr << "No books found in the CSV file." << std::endl;
-        return 1;
-    }
-
-    librarian.issueBook(member, books, 1);
-    librarian.issueBook(member, books, 2);
-
-    librarian.displayBorrowedBooks(member);
-
-    librarian.calculateFine(member);
-
-    librarian.returnBook(member, 2);
-
-    librarian.displayBorrowedBooks(member);
-
-    return 0;
 }
