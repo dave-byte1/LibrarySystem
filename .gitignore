@@ -1,3 +1,4 @@
 /.vscode
-/library.exe
-/library_tests.exe
+library_interface.o
+library.o
+LibraryProgram.exe
