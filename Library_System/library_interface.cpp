@@ -51,7 +51,7 @@ int main() {
         std::cout << "|  5. Calculate fines for a member.          |" << std::endl;
         std::cout << "|                                            |" << std::endl;
         std::cout << "|  0. Exit the program.                      |" << std::endl;
-        std::cout << "|--------------------------------------------|" << std::endl;
+        std::cout << "----------------------------------------------" << std::endl;
 
         std::cin >> choice;
         std::cin.clear();
