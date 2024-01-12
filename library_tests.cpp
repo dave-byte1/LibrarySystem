@@ -7,7 +7,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include "library.cpp"
+#include "library.h"
 
 TEST_CASE("Book class functions work as expected", "[Book]")
 {
@@ -99,21 +99,25 @@ TEST_CASE("Librarian class functions work as expected", "[Librarian]")
 
     SECTION("issueBook, returnBook, displayBorrowedBooks, and calculateFine functions work as expected")
     {
+
+        Member member2(2, "Jackie", "674 ABC Roads", "jack@email.comm");
         // Vector of books for testing
         std::vector<Book> books = readBooksFromCSV("library_books.csv");
 
+        REQUIRE_NOTHROW(librarian.addMember(member2));
+
         // Issue books to a member
-        REQUIRE_NOTHROW(librarian.issueBook(member, books, 1));
-        REQUIRE_NOTHROW(librarian.issueBook(member, books, 2));
+        REQUIRE_NOTHROW(librarian.issueBook(member2, books, 1));
+        REQUIRE_NOTHROW(librarian.issueBook(member2, books, 2));
 
         // Display borrowed books from member
-        REQUIRE_NOTHROW(librarian.displayBorrowedBooks(member));
+        REQUIRE_NOTHROW(librarian.displayBorrowedBooks(member2));
 
         // Calculate fines
-        REQUIRE_NOTHROW(librarian.calculateFine(member));
+        REQUIRE_NOTHROW(librarian.calculateFine(member2));
 
         // Return a book from a member
-        REQUIRE_NOTHROW(librarian.returnBook(member, 1));
-        REQUIRE_NOTHROW(librarian.displayBorrowedBooks(member));
+        REQUIRE_NOTHROW(librarian.returnBook(member2, 1));
+        REQUIRE_NOTHROW(librarian.displayBorrowedBooks(member2));
     }
 }
