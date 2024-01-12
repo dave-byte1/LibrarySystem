@@ -2,7 +2,7 @@
     library.cpp
     Author: M00865822
     Created: 01/01/2024
-    Updated: 011/01/2024
+    Updated: 012/01/2024
 */
 #include "library.h"
 
@@ -239,7 +239,7 @@ void Librarian::calculateFine(Member& member) {
 */
 std::vector<Book> readBooksFromCSV(const std::string& filename) {
     std::vector<Book> books;  // Vector to store Book objects
-    std::ifstream file(filename);
+    std::ifstream file(filename); // Open CSV file
 
     // Check if file is open
     if (!file.is_open()) {

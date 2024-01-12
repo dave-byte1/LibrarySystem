@@ -1,6 +1,3 @@
-# Makefile for the library program
-
-# Compiler settings
 CXX = g++
 CXXFLAGS = -Wall -g
 

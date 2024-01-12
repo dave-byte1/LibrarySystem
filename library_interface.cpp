@@ -2,7 +2,7 @@
     library_interface.cpp
     Author: M00865822
     Created: 11/01/2024
-    Updated: 11/01/2024
+    Updated: 12/01/2024
 */
 #include <algorithm>
 #include <ctime>
@@ -123,7 +123,7 @@ void addMemberInterface() {
     @brief Interface for the librarian to issue a book to a member.
 
     This function prompts the librarian for a member ID and a book ID, then issues the book
-    to the member from the vector of books in the CSV file.
+    to the member (if book is not borrowed) from the vector of books in the CSV file.
 
     @param books A reference to the vector of books available in the library.
 */
@@ -136,10 +136,11 @@ void issueBookInterface(std::vector<Book>& books) {
     std::cin >> bookID;
 
     // Find the member and the book by ID
-    // Assuming member IDs and book IDs are unique
     for (auto& member : members) {
+        // If member ID matches vector of members
         if (member.getMemberID() == memberID) {
             for (size_t i = 0; i < books.size(); ++i) {
+                // Find book by book ID and issue the book when book ID matches
                 if (books[i].getBookID() == bookID) {
                     librarian.issueBook(member, books, i + 1);  // Pass index to issueBook
                     return;
@@ -155,8 +156,7 @@ void issueBookInterface(std::vector<Book>& books) {
     @brief Interface to return a book to the library.
 
     This function prompts the librarian for a member ID and a book ID, then returns the book
-    with the specified book ID. If a book is taken the librarian will get an error saying it's
-    already being borrowed. If the book ID or member ID is not valid no book will be returned.
+    with the specified book ID. If the book ID or member ID is not valid no book will be returned.
 
     @param books Reference to the vector of books available.
 */
