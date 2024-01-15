@@ -2,7 +2,7 @@
     library.cpp
     Author: M00865822
     Created: 01/01/2024
-    Updated: 012/01/2024
+    Updated: 015/01/2024
 */
 #include "library.h"
 
@@ -238,8 +238,8 @@ void Librarian::calculateFine(Member& member) {
     @return A vector of book objects representing the books read from the CSV file.
 */
 std::vector<Book> readBooksFromCSV(const std::string& filename) {
-    std::vector<Book> books;  // Vector to store Book objects
-    std::ifstream file(filename); // Open CSV file
+    std::vector<Book> books;       // Vector to store Book objects
+    std::ifstream file(filename);  // Open CSV file
 
     // Check if file is open
     if (!file.is_open()) {
@@ -257,7 +257,18 @@ std::vector<Book> readBooksFromCSV(const std::string& filename) {
         std::vector<std::string> tokens;
 
         // Tokenizing each line with ','
-        while (std::getline(ss, token, ',')) {
+        while (ss.good()) {
+            std::string token;
+            std::getline(ss, token, ',');
+
+            // Handle case when the book name has commas which are enclosed in ""
+            if (!token.empty() && token.front() == '"') {
+                std::string tempToken;
+                std::getline(ss, tempToken, '"');
+                token += "," + tempToken;
+                ss.ignore();
+            }
+
             tokens.push_back(token);
         }
 
